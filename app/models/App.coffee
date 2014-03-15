@@ -9,6 +9,16 @@ class window.App extends Backbone.Model
     @.listeners()
   
   # check if player has a 21 score. if player is at 21, check if dealer. if both, then tie. if dealer not, then player wins
+  dealerDraw: -> 
+    dealer = @get 'dealerHand'
+    dealerScore = parseInt(dealer.scores()) + parseInt(dealer.models[0].attributes.value)
+    console.log(dealer)
+    console.log(dealerScore)
+    if dealerScore < 17
+      dealer.drawCard()
+      #@.dealerCheck21()
+
+
   playerCheck21: ->
     player = @get 'playerHand'
     playerScore = player.scores();
@@ -21,33 +31,36 @@ class window.App extends Backbone.Model
         allLose.push true
       else if i is 21
         @.youWin(playerScore)
+        return undefined
       else
         allLose.push false 
     console.log(allLose)
     allLose = _.reduce allLose, (accu, value) -> 
       accu and value
 
-    if allLose is true then @.youLose(playerScore)
-
-    
-
-
-
-
-    #else if playerScore[0] > 21 and playerScore[1] > 21
-     # @.youLose(playerScore)
-    #else if playerScore.length is 1 and 
-      
-    #else if playerScore[0] is 21 or playerScore[1] is 21
-     # @.youWin(playerScore)
+    if allLose is true 
+      @.youLose(playerScore)
+    else if (player.models.length > 2)
+      @.dealerDraw()
 
 
-  #dealerCheck21: ->
-   # dealerScore = @get 'dealerHand'.scores() + 
-    #if dealerScore.length is 1 and dealerScore[0] >= 21 
-     # @.youLose(dealerScore)
-    #else if dealerScore[0] >= 21 or dealerScore[1] >= 21
-     # @.youLose(dealerScore)
+  # dealerCheck21: ->
+  #   dealerScore = @get 'dealerHand'.scores() + 
+  #   dealerLose = []
+  #   length = dealerScore.length
+  #   for i in dealerScore
+  #     if i > 21
+  #       dealerLose.push true
+  #     else
+  #       dealerLose.push false 
+  #   console.log(dealerLose)
+  #   dealerLose = _.reduce dealerLose, (accu, value) -> 
+  #     accu and value
+
+  #   if dealerLose is true 
+  #     @.youLose(dealerScore)
+  #   else 
+  #     dealerDraw()
     
   listeners: ->
     @get('playerHand').on 'playerHit', => 

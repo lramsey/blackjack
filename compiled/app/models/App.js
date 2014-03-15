@@ -21,6 +21,17 @@
       return this.listeners();
     };
 
+    App.prototype.dealerDraw = function() {
+      var dealer, dealerScore;
+      dealer = this.get('dealerHand');
+      dealerScore = parseInt(dealer.scores()) + parseInt(dealer.models[0].attributes.value);
+      console.log(dealer);
+      console.log(dealerScore);
+      if (dealerScore < 17) {
+        return dealer.drawCard();
+      }
+    };
+
     App.prototype.playerCheck21 = function() {
       var allLose, i, length, player, playerScore, _i, _len;
       player = this.get('playerHand');
@@ -34,6 +45,7 @@
           allLose.push(true);
         } else if (i === 21) {
           this.youWin(playerScore);
+          return void 0;
         } else {
           allLose.push(false);
         }
@@ -44,6 +56,8 @@
       });
       if (allLose === true) {
         return this.youLose(playerScore);
+      } else if (player.models.length > 2) {
+        return this.dealerDraw();
       }
     };
 

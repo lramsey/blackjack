@@ -3,9 +3,12 @@ class window.Hand extends Backbone.Collection
   model: Card
 
   initialize: (array, @deck, @isDealer) ->
-
-  hit: -> 
+  
+  drawCard: ->
     @add(@deck.pop()).last()
+  
+  hit: -> 
+    @.drawCard()
     @.trigger 'playerHit'
 
 

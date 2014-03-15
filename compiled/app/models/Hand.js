@@ -19,8 +19,12 @@
       this.isDealer = isDealer;
     };
 
+    Hand.prototype.drawCard = function() {
+      return this.add(this.deck.pop()).last();
+    };
+
     Hand.prototype.hit = function() {
-      this.add(this.deck.pop()).last();
+      this.drawCard();
       return this.trigger('playerHit');
     };
 
