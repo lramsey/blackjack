@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "main.js",
+  "sourceRoot": "../..",
+  "sources": [
+    "spec/main.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;CAAA,KAAA,kBAAA;;CAAA,CAAA,CAAa,GAAA,CAAO,GAApB;;CAAA,CACA,CAA4B,CAD5B,MACU,IAAV;;CADA,CAGA,CAAmB,CAAA,GAAO,KAA1B;;CAHA,CAIA,QAAU,CAAV,CAAA;;CAJA,CAKA,CAAwB,CAAA,KAAC,CAAf;CACK,GAAb,MAAA,CAAA,CAAY;CANd,EAKwB;;CALxB,CAQA,CAAE,MAAA;CAAc,MAAX,GAAU,CAAV;CAAL,EAAE;CARF"
+}
