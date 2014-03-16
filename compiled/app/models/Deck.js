@@ -15,21 +15,27 @@
     Deck.prototype.model = Card;
 
     Deck.prototype.initialize = function() {
-      return this.add(_(_.range(0, 52)).shuffle().map(function(card) {
+      var priorCards;
+      this.add(_(_.range(0, 52)).shuffle().map(function(card) {
         return new Card({
           rank: card % 13,
           suit: Math.floor(card / 13)
         });
       }));
+      this.inUse = {};
+      console.log(this.discardPile);
+      priorCards = window.localStorage.getItem('discardPile');
+      this.discardPile = JSON.parse(priorCards) || {};
+      return console.log(this);
     };
 
     Deck.prototype.dealPlayer = function() {
       var hand;
-      return hand = new Hand([this.pop(), this.pop()], this);
+      return hand = new Hand([], this);
     };
 
     Deck.prototype.dealDealer = function() {
-      return new Hand([this.pop().flip(), this.pop()], this, true);
+      return new Hand([], this, true);
     };
 
     return Deck;

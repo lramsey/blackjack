@@ -3,13 +3,25 @@ class window.Hand extends Backbone.Collection
   model: Card
 
   initialize: (array, @deck, @isDealer) ->
+    array.push(@.drawCard())
+    array.push(@.drawCard())
+    if(@isDealer)
+      array[0].flip()
   
   drawCard: ->
-    @add(@deck.pop()).last()
+    card = @deck.pop()
+    @.deck.inUse[card.attributes.rank + card.attributes.suit * 13] = true
+    @add card
+    card
   
   hit: -> 
     @.drawCard()
     @.trigger 'playerHit'
+
+  stand: ->
+    $('.stand-button').hide()
+    $('.hit-button').hide()
+    @.trigger 'dealerHit'
 
 
   scores: ->

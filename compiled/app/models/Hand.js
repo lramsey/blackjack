@@ -17,15 +17,30 @@
     Hand.prototype.initialize = function(array, deck, isDealer) {
       this.deck = deck;
       this.isDealer = isDealer;
+      array.push(this.drawCard());
+      array.push(this.drawCard());
+      if (this.isDealer) {
+        return array[0].flip();
+      }
     };
 
     Hand.prototype.drawCard = function() {
-      return this.add(this.deck.pop()).last();
+      var card;
+      card = this.deck.pop();
+      this.deck.inUse[card.attributes.rank + card.attributes.suit * 13] = true;
+      this.add(card);
+      return card;
     };
 
     Hand.prototype.hit = function() {
       this.drawCard();
       return this.trigger('playerHit');
+    };
+
+    Hand.prototype.stand = function() {
+      $('.stand-button').hide();
+      $('.hit-button').hide();
+      return this.trigger('dealerHit');
     };
 
     Hand.prototype.scores = function() {

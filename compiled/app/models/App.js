@@ -22,13 +22,21 @@
     };
 
     App.prototype.dealerDraw = function() {
-      var dealer, dealerScore;
+      var dealer, dealerScore,
+        _this = this;
+      console.log(this.get('deck'));
       dealer = this.get('dealerHand');
       dealerScore = parseInt(dealer.scores()) + parseInt(dealer.models[0].attributes.value);
       console.log(dealer);
       console.log(dealerScore);
       if (dealerScore < 17) {
-        return dealer.drawCard();
+        dealer.drawCard();
+        return setTimeout(function() {
+          return _this.dealerDraw();
+        }, 1000);
+      } else {
+        dealer.models[0].flip();
+        return this.finalCheck21();
       }
     };
 
@@ -44,7 +52,7 @@
         if (i > 21) {
           allLose.push(true);
         } else if (i === 21) {
-          this.youWin(playerScore);
+          this.youWin();
           return void 0;
         } else {
           allLose.push(false);
@@ -55,9 +63,36 @@
         return accu && value;
       });
       if (allLose === true) {
-        return this.youLose(playerScore);
-      } else if (player.models.length > 2) {
-        return this.dealerDraw();
+        return this.youLose();
+      }
+    };
+
+    App.prototype.finalCheck21 = function() {
+      var dealer, dealerBust, dealerScore, i, length, player, playerScore, _i, _len;
+      player = this.get('playerHand');
+      playerScore = player.scores();
+      dealer = this.get('dealerHand');
+      dealerScore = dealer.scores();
+      dealerBust = [];
+      length = dealerScore.length;
+      for (_i = 0, _len = dealerScore.length; _i < _len; _i++) {
+        i = dealerScore[_i];
+        if (i > 21) {
+          dealerBust.push(true);
+        } else {
+          dealerBust.push(false);
+        }
+      }
+      console.log(dealerBust);
+      dealerBust = _.reduce(dealerBust, function(accu, value) {
+        return accu && value;
+      });
+      if (dealerBust === true || playerScore > dealerScore) {
+        return this.youWin();
+      } else if (playerScore === dealerScore) {
+        return this.tie();
+      } else {
+        return this.youLose();
       }
     };
 
@@ -67,27 +102,63 @@
         _this.playerCheck21();
         return void 0;
       });
+      this.get('playerHand').on('dealerHit', function() {
+        _this.dealerDraw();
+        return void 0;
+      });
       return void 0;
     };
 
-    App.prototype.youLose = function(score) {
-      $('body').text('You Lose!!!!!!!').append($('<button class="playAgain">Play again</button>'));
-      return $('.playAgain').on('click', function() {
-        $('body').text('');
-        return new AppView({
-          model: new App()
-        }).$el.appendTo('body');
+    App.prototype.addToDiscard = function() {
+      var deck;
+      deck = this.attributes.deck;
+      _.each(deck.inUse, function(value, key) {
+        return deck.discardPile[key] = true;
       });
+      deck.inUse = {};
+      return window.localStorage.setItem('discardPile', JSON.stringify(deck.discardPile));
     };
 
-    App.prototype.youWin = function(score) {
-      $('body').text('You Win!!!!!!!').append($('<button class="playAgain">Play again</button>'));
-      return $('.playAgain').on('click', function() {
-        $('body').text('');
-        return new AppView({
-          model: new App()
-        }).$el.appendTo('body');
-      });
+    App.prototype.youLose = function() {
+      var _this = this;
+      return setTimeout(function() {
+        $('body').text('You Lose!!!!!!!').append($('<button class="playAgain">Play again</button>'));
+        _this.addToDiscard();
+        return $('.playAgain').on('click', function() {
+          $('body').text('');
+          return new AppView({
+            model: new App()
+          }).$el.appendTo('body');
+        });
+      }, 1000);
+    };
+
+    App.prototype.youWin = function() {
+      var _this = this;
+      return setTimeout(function() {
+        $('body').text('You Win!!!!!!!').append($('<button class="playAgain">Play again</button>'));
+        _this.addToDiscard();
+        return $('.playAgain').on('click', function() {
+          $('body').text('');
+          return new AppView({
+            model: new App()
+          }).$el.appendTo('body');
+        });
+      }, 1000);
+    };
+
+    App.prototype.tie = function() {
+      var _this = this;
+      return setTimeout(function() {
+        $('body').html('Tie...').append($('<button class="playAgain">Play again</button>'));
+        _this.addToDiscard();
+        return $('.playAgain').on('click', function() {
+          $('body').text('');
+          return new AppView({
+            model: new App()
+          }).$el.appendTo('body');
+        });
+      }, 1000);
     };
 
     return App;

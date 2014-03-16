@@ -8,15 +8,24 @@ class window.App extends Backbone.Model
     @.playerCheck21()
     @.listeners()
   
+
+
+  
   # check if player has a 21 score. if player is at 21, check if dealer. if both, then tie. if dealer not, then player wins
   dealerDraw: -> 
+    console.log(@get 'deck')
     dealer = @get 'dealerHand'
     dealerScore = parseInt(dealer.scores()) + parseInt(dealer.models[0].attributes.value)
     console.log(dealer)
     console.log(dealerScore)
     if dealerScore < 17
       dealer.drawCard()
-      #@.dealerCheck21()
+      setTimeout( () =>
+        @.dealerDraw() 
+      1000)  
+    else
+      dealer.models[0].flip()
+      @.finalCheck21()
 
 
   playerCheck21: ->
@@ -30,7 +39,7 @@ class window.App extends Backbone.Model
       if i > 21
         allLose.push true
       else if i is 21
-        @.youWin(playerScore)
+        @.youWin()
         return undefined
       else
         allLose.push false 
@@ -39,32 +48,41 @@ class window.App extends Backbone.Model
       accu and value
 
     if allLose is true 
-      @.youLose(playerScore)
-    else if (player.models.length > 2)
-      @.dealerDraw()
+      @.youLose()
 
 
-  # dealerCheck21: ->
-  #   dealerScore = @get 'dealerHand'.scores() + 
-  #   dealerLose = []
-  #   length = dealerScore.length
-  #   for i in dealerScore
-  #     if i > 21
-  #       dealerLose.push true
-  #     else
-  #       dealerLose.push false 
-  #   console.log(dealerLose)
-  #   dealerLose = _.reduce dealerLose, (accu, value) -> 
-  #     accu and value
+  finalCheck21: ->
+    player = @get 'playerHand'
+    playerScore = player.scores();
 
-  #   if dealerLose is true 
-  #     @.youLose(dealerScore)
-  #   else 
-  #     dealerDraw()
+    dealer = @get 'dealerHand'
+    dealerScore = dealer.scores()
+    
+    dealerBust = []
+    length = dealerScore.length
+    
+    for i in dealerScore
+      if i > 21
+        dealerBust.push true
+      else
+        dealerBust.push false 
+    console.log(dealerBust)
+    dealerBust = _.reduce dealerBust, (accu, value) -> 
+      accu and value
+
+    if dealerBust is true or playerScore > dealerScore
+      @.youWin()
+    else if playerScore is dealerScore
+      @.tie()
+    else 
+      @.youLose()
     
   listeners: ->
     @get('playerHand').on 'playerHit', => 
       @.playerCheck21()
+      undefined
+    @get('playerHand').on 'dealerHit', => 
+      @.dealerDraw()
       undefined
     undefined
 
@@ -73,22 +91,43 @@ class window.App extends Backbone.Model
   # if one of dealer's scores is 17, dealer cannot hit again. if dealer score > 21, player wins
   # if player obtains 21 score, check dealer score and same as above
   # if player over 21, dealer wins.
-
+  addToDiscard: ->
+    deck = @.attributes.deck
+    _.each deck.inUse,(value,key)->
+      deck.discardPile[key] = true
+    deck.inUse = {}
+    window.localStorage.setItem('discardPile',deck.discardPile)
   # after game
   # count win, loss, push tallies.
-  youLose: (score) ->
-    $('body').text('You Lose!!!!!!!').append($('<button class="playAgain">Play again</button>'));
-    $('.playAgain').on 'click', ->
-      $('body').text('')
-      new AppView(model: new App()).$el.appendTo 'body'
+  youLose: () ->
+    setTimeout( () =>
+      $('body').text('You Lose!!!!!!!').append($('<button class="playAgain">Play again</button>'));
+      @.addToDiscard()
+      $('.playAgain').on 'click', ->
+        $('body').text('')
+        new AppView(model: new App()).$el.appendTo 'body'
+    1000)
 
 
 
-  youWin: (score) ->
-    $('body').text('You Win!!!!!!!').append($('<button class="playAgain">Play again</button>'));
-    $('.playAgain').on 'click', ->
-      $('body').text('')
-      new AppView(model: new App()).$el.appendTo 'body'
+  youWin: () ->
+    setTimeout( () =>
+      $('body').text('You Win!!!!!!!').append($('<button class="playAgain">Play again</button>'));
+      @.addToDiscard()
+      $('.playAgain').on 'click', ->
+        $('body').text('')
+        new AppView(model: new App()).$el.appendTo 'body'
+    1000)
+
+  tie: ->
+    setTimeout( () =>
+      $('body').html('Tie...').append($('<button class="playAgain">Play again</button>'));
+      @.addToDiscard()
+      $('.playAgain').on 'click', ->
+        $('body').text('')
+        new AppView(model: new App()).$el.appendTo 'body'
+    1000)
+
     
   
   # push button to play new game. reinitialize app
